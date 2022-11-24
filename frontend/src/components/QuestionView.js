@@ -4,6 +4,7 @@ import Question from './Question';
 import Search from './Search';
 import $ from 'jquery';
 
+const baseUrl = "http://127.0.0.1:5000/"   // baseUrl set
 class QuestionView extends Component {
   constructor() {
     super();
@@ -21,24 +22,30 @@ class QuestionView extends Component {
   }
 
   getQuestions = () => {
+    var callback = 'c'+Math.floor((Math.random()*100000000)+1);
     $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
-      type: 'GET',
+      url: `${baseUrl}questions?page=${this.state.page}`,  //url updated
+      type: "GET",
+      jsonpCallback: callback,
+      dataType: 'json',
       success: (result) => {
+        let cats = [];
+        for (let i in result.categories) {
+          cats[result.categories[i].id] = result.categories[i].type;
+        }
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
-          categories: result.categories,
-          currentCategory: result.current_category,
-        });
+          categories: cats,
+          currentCategory: result.current_category })
         return;
       },
       error: (error) => {
-        alert('Unable to load questions. Please try your request again');
+        alert('Unable to load questions. Please try your request again')
         return;
-      },
-    });
-  };
+      }
+    })
+  }
 
   selectPage(num) {
     this.setState({ page: num }, () => this.getQuestions());
@@ -63,68 +70,69 @@ class QuestionView extends Component {
     return pageNumbers;
   }
 
-  getByCategory = (id) => {
+  getByCategory= (id) => {
+    var callback = 'c'+Math.floor((Math.random()*100000000)+1);
     $.ajax({
-      url: `/categories/${id}/questions`, //TODO: update request URL
-      type: 'GET',
+      url: `${baseUrl}categories/${id}/questions`, //url updated
+      type: "GET",
+      jsonpCallback: callback,
+      dataType: 'json',
       success: (result) => {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
-          currentCategory: result.current_category,
-        });
+          currentCategory: result.current_category })
         return;
       },
       error: (error) => {
-        alert('Unable to load questions. Please try your request again');
+        alert('Unable to load questions. Please try your request again')
         return;
-      },
-    });
-  };
+      }
+    })
+  }
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
-      type: 'POST',
+      url: `${baseUrl}questions/search`,  //url updated
+      type: "POST",
       dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({ searchTerm: searchTerm }),
-      xhrFields: {
-        withCredentials: true,
-      },
       crossDomain: true,
+      contentType: 'application/json',
+      data: JSON.stringify({searchTerm: searchTerm}),
       success: (result) => {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
-          currentCategory: result.current_category,
-        });
+          currentCategory: result.current_category })
         return;
       },
       error: (error) => {
-        alert('Unable to load questions. Please try your request again');
+        alert('That word does not exist. Please try again')
         return;
-      },
-    });
-  };
+      }
+    })
+  }
 
   questionAction = (id) => (action) => {
-    if (action === 'DELETE') {
-      if (window.confirm('are you sure you want to delete the question?')) {
+    if(action === 'DELETE') {
+      if(window.confirm('Are you sure you want to DELETE the question?')) {
         $.ajax({
-          url: `/questions/${id}`, //TODO: update request URL
-          type: 'DELETE',
+          url: `${baseUrl}questions/${id}`,  // url updated
+          type: "DELETE",
+          dataType: 'json',
+          contentType: 'application/json',
           success: (result) => {
             this.getQuestions();
           },
           error: (error) => {
-            alert('Unable to load questions. Please try your request again');
+            alert('Unable to load questions. Please try your request again')
             return;
-          },
-        });
+          }
+        })
       }
     }
-  };
+  }
+
 
   render() {
     return (

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import $ from 'jquery';
 import '../stylesheets/FormView.css';
 
+const baseUrl = "http://127.0.0.1:5000/"
 class FormView extends Component {
   constructor(props) {
     super();
@@ -14,48 +15,52 @@ class FormView extends Component {
     };
   }
 
-  componentDidMount() {
+  componentDidMount(){
+    var callback = 'c'+Math.floor((Math.random()*100000000)+1);
     $.ajax({
-      url: `/categories`, //TODO: update request URL
-      type: 'GET',
+      url: `${baseUrl}categories`,   // baseUrl updated
+      type: "GET",
+      jsonpCallback: callback,
+      dataType: 'json',
       success: (result) => {
-        this.setState({ categories: result.categories });
+        let cats = [];
+        for (let i in result.categories) {
+          cats[result.categories[i].id] = result.categories[i].type;
+        }
+        this.setState({ categories: cats })
         return;
       },
       error: (error) => {
-        alert('Unable to load categories. Please try your request again');
+        alert('Unable to load categories. Please try your request again')
         return;
-      },
-    });
+      }
+    })
   }
 
   submitQuestion = (event) => {
     event.preventDefault();
     $.ajax({
-      url: '/questions', //TODO: update request URL
-      type: 'POST',
+      url: `${baseUrl}questions`,    // baseUrl updated
+      type: "POST",
       dataType: 'json',
       contentType: 'application/json',
       data: JSON.stringify({
         question: this.state.question,
         answer: this.state.answer,
         difficulty: this.state.difficulty,
-        category: this.state.category,
+        category: this.state.category
       }),
-      xhrFields: {
-        withCredentials: true,
-      },
       crossDomain: true,
       success: (result) => {
-        document.getElementById('add-question-form').reset();
+        document.getElementById("add-question-form").reset();
         return;
       },
       error: (error) => {
-        alert('Unable to add question. Please try your request again');
+        alert('Unable to add question. Please try your request again')
         return;
-      },
-    });
-  };
+      }
+    })
+  }
 
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
