@@ -12,4 +12,4 @@ ehthumbs.db
 Thumbs.db
 env/
 frontend/node_modules/
-config/conf/.env
+backend/config/conf/.env
